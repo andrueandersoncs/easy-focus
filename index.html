@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Binaural Beat Generator</title>
+</head>
+<body>
+    <h2>Binaural Beat Generator for Focus</h2>
+    <label>Carrier Frequency (Hz): <input type="number" id="carrierFreq" value="200" min="100" max="500"></label><br>
+    <label>Entrainment Frequency (Hz): <input type="number" id="entrainFreq" value="15" min="1" max="30"></label><br>
+    <button onclick="startTones()">Start</button>
+    <button onclick="stopTones()">Stop</button>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let leftOscillator, rightOscillator;
+
+        function startTones() {
+            // Get values from inputs
+            const carrierFreq = parseFloat(document.getElementById('carrierFreq').value);
+            const entrainFreq = parseFloat(document.getElementById('entrainFreq').value);
+
+            // Calculate frequencies
+            const leftFreq = carrierFreq;              // Left channel
+            const rightFreq = carrierFreq + entrainFreq; // Right channel
+
+            // Create oscillators
+            leftOscillator = audioContext.createOscillator();
+            rightOscillator = audioContext.createOscillator();
+
+            // Set frequencies
+            leftOscillator.frequency.value = leftFreq;
+            rightOscillator.frequency.value = rightFreq;
+
+            // Use sine waves for smooth sound
+            leftOscillator.type = 'sine';
+            rightOscillator.type = 'sine';
+
+            // Create channel merger for stereo output
+            const merger = audioContext.createChannelMerger(2);
+            leftOscillator.connect(merger, 0, 0);  // Left to channel 0
+            rightOscillator.connect(merger, 0, 1); // Right to channel 1
+            merger.connect(audioContext.destination);
+
+            // Start oscillators
+            leftOscillator.start();
+            rightOscillator.start();
+        }
+
+        function stopTones() {
+            if (leftOscillator && rightOscillator) {
+                leftOscillator.stop();
+                rightOscillator.stop();
+                leftOscillator = null;
+                rightOscillator = null;
+            }
+        }
+    </script>
+</body>
+</html>
